@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CLIP xmlns="http://www.ni.com/LvFPGA/Clip" Version="3.0">
+  <ClipName>TCC_Core</ClipName>
+  <TopLevelModule>tcc_top</TopLevelModule>
+  <FileDependencies>
+    <File>../rtl/tcc_top.v</File>
+    <File>../rtl/edge_analytics.v</File>
+    <File>../rtl/quantiser.v</File>
+    <File>../rtl/dptc_encoder.v</File>
+    <File>../rtl/bit_packer.v</File>
+    <File>../rtl/ccsds_framer.v</File>
+    <File>../rtl/fifo_sync.v</File>
+  </FileDependencies>
+  <Ports>
+    <Port>
+      <Name>clk</Name>       <Type>ClockSocket</Type>    <Direction>Input</Direction>
+    </Port>
+    <Port>
+      <Name>rst_n</Name>     <Type>SingleBit</Type>      <Direction>Input</Direction>
+    </Port>
+    <!-- AXI-Stream In (from DMA FIFO) -->
+    <Port><Name>s_axis_tdata</Name>  <Type>U16</Type>  <Direction>Input</Direction></Port>
+    <Port><Name>s_axis_tvalid</Name> <Type>Boolean</Type><Direction>Input</Direction></Port>
+    <Port><Name>s_axis_tready</Name> <Type>Boolean</Type><Direction>Output</Direction></Port>
+    <!-- AXI-Stream Out (to DMA FIFO) -->
+    <Port><Name>m_axis_tdata</Name>  <Type>U8</Type>   <Direction>Output</Direction></Port>
+    <Port><Name>m_axis_tvalid</Name> <Type>Boolean</Type><Direction>Output</Direction></Port>
+    <Port><Name>m_axis_tready</Name> <Type>Boolean</Type><Direction>Input</Direction></Port>
+    <Port><Name>m_axis_tlast</Name>  <Type>Boolean</Type><Direction>Output</Direction></Port>
+    <!-- Status -->
+    <Port><Name>status_mode</Name>      <Type>U8</Type>    <Direction>Output</Direction></Port>
+    <Port><Name>status_fifo_full</Name> <Type>Boolean</Type><Direction>Output</Direction></Port>
+    <Port><Name>status_overflow</Name>  <Type>Boolean</Type><Direction>Output</Direction></Port>
+  </Ports>
+</CLIP>

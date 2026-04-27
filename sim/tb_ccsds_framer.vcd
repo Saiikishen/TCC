@@ -1,0 +1,517 @@
+$date
+	Sat Apr 25 08:29:59 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module tb_ccsds_framer $end
+$var wire 1 ! packet_start $end
+$var wire 1 " packet_end $end
+$var wire 1 # byte_valid $end
+$var wire 8 $ byte_out [7:0] $end
+$var reg 1 % chunk_done $end
+$var reg 1 & clk $end
+$var reg 11 ' csr_apid [10:0] $end
+$var reg 1 ( csr_en $end
+$var reg 2 ) mode [1:0] $end
+$var reg 8 * payload_byte [7:0] $end
+$var reg 1 + payload_valid $end
+$var reg 4 , q_out [3:0] $end
+$var reg 1 - rst_n $end
+$var reg 32 . timestamp [31:0] $end
+$var integer 32 / i [31:0] $end
+$scope module uut $end
+$var wire 1 % chunk_done $end
+$var wire 1 & clk $end
+$var wire 11 0 csr_apid [10:0] $end
+$var wire 1 ( csr_en $end
+$var wire 2 1 mode [1:0] $end
+$var wire 8 2 payload_byte [7:0] $end
+$var wire 1 + payload_valid $end
+$var wire 4 3 q_out [3:0] $end
+$var wire 1 - rst_n $end
+$var wire 32 4 timestamp [31:0] $end
+$var wire 16 5 pkt_data_length [15:0] $end
+$var wire 8 6 emit_rd_data [7:0] $end
+$var wire 7 7 chunk_len [6:0] $end
+$var wire 11 8 apid [10:0] $end
+$var parameter 3 9 S_CRC1 $end
+$var parameter 3 : S_CRC2 $end
+$var parameter 3 ; S_IDLE $end
+$var parameter 3 < S_PAYLOAD $end
+$var parameter 3 = S_PRI_HDR $end
+$var parameter 3 > S_SEC_HDR $end
+$var reg 8 ? byte_out [7:0] $end
+$var reg 1 # byte_valid $end
+$var reg 16 @ crc [15:0] $end
+$var reg 1 A emit_buf_sel $end
+$var reg 7 B emit_len [6:0] $end
+$var reg 2 C emit_mode [1:0] $end
+$var reg 4 D emit_q [3:0] $end
+$var reg 4 E hdr_cnt [3:0] $end
+$var reg 8 F next_byte [7:0] $end
+$var reg 1 " packet_end $end
+$var reg 1 ! packet_start $end
+$var reg 1 G pending_buf_sel $end
+$var reg 1 H pending_emit $end
+$var reg 7 I pending_len [6:0] $end
+$var reg 2 J pending_mode [1:0] $end
+$var reg 4 K pending_q [3:0] $end
+$var reg 7 L rd_ptr [6:0] $end
+$var reg 14 M seq_cnt [13:0] $end
+$var reg 3 N state [2:0] $end
+$var reg 1 O wr_buf_sel $end
+$var reg 7 P wr_ptr [6:0] $end
+$scope function next_crc $end
+$var reg 16 Q c [15:0] $end
+$var reg 16 R current_crc [15:0] $end
+$var reg 8 S d [7:0] $end
+$var reg 8 T data_byte [7:0] $end
+$var integer 32 U i [31:0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b10 >
+b1 =
+b11 <
+b0 ;
+b101 :
+b100 9
+$end
+#0
+$dumpvars
+bx U
+bx T
+bx S
+bx R
+bx Q
+b0 P
+0O
+b0 N
+b0 M
+b0 L
+b0 K
+b0 J
+b0 I
+0H
+0G
+bx F
+b0 E
+b0 D
+b0 C
+b0 B
+0A
+b1111111111111111 @
+b0 ?
+b10000 8
+b0 7
+bx 6
+b100 5
+b11011110101011011011111011101111 4
+b100 3
+b0 2
+b10 1
+b10000 0
+bx /
+b11011110101011011011111011101111 .
+0-
+b100 ,
+0+
+b0 *
+b10 )
+0(
+b10000 '
+0&
+0%
+b0 $
+0#
+0"
+0!
+$end
+#5000
+1&
+#10000
+0&
+#15000
+1&
+#20000
+0&
+1-
+#25000
+b1 7
+1+
+b10101010 *
+b10101010 2
+1&
+#30000
+0&
+#35000
+b10 7
+b10101010 6
+b1 P
+b10111011 *
+b10111011 2
+1&
+#40000
+0&
+#45000
+b11 7
+b10 P
+b11001100 *
+b11001100 2
+1&
+#50000
+0&
+#55000
+b100 7
+b11 P
+1%
+b11011101 *
+b11011101 2
+1&
+#60000
+0&
+#65000
+b0 7
+b1 N
+1O
+b100 D
+b10 C
+b1000 5
+b100 B
+b0 P
+0%
+0+
+b0 /
+1&
+#70000
+0&
+#75000
+b110000011111000 @
+b1000 $
+b1000 ?
+1!
+b1 E
+1#
+b1000 U
+b0 S
+b110000011111000 Q
+b1111111111111111 R
+b1000 T
+b1000 F
+b1 /
+1&
+#80000
+0&
+#85000
+b1000011010010111 @
+b10000 $
+b10000 ?
+b10 E
+0!
+1#
+b1000011010010111 Q
+b1000 U
+b0 S
+b110000011111000 R
+b10000 T
+b10000 F
+b10 /
+1&
+#90000
+0&
+#95000
+b1011111100000010 @
+b11000000 $
+b11000000 ?
+b11 E
+1#
+b1011111100000010 Q
+b1000 U
+b0 S
+b1000011010010111 R
+b11000000 T
+b11000000 F
+b11 /
+1&
+#100000
+0&
+#105000
+b101010000110100 @
+b0 $
+b0 ?
+b100 E
+1#
+b101010000110100 Q
+b1000 U
+b1011111100000010 R
+b0 T
+b0 F
+b100 /
+1&
+#110000
+0&
+#115000
+b10111001110001 @
+b101 E
+1#
+b10111001110001 Q
+b1000 U
+b101010000110100 R
+b101 /
+1&
+#120000
+0&
+#125000
+b11010110100100 @
+b1000 $
+b1000 ?
+b1 M
+b10 N
+b0 E
+1#
+b11010110100100 Q
+b1000 U
+b0 S
+b10111001110001 R
+b1000 T
+b1000 F
+b110 /
+1&
+#130000
+0&
+#135000
+b1110100001000101 @
+b11011110 $
+b11011110 ?
+b1 E
+1#
+b1110100001000101 Q
+b1000 U
+b0 S
+b11010110100100 R
+b11011110 T
+b11011110 F
+b111 /
+1&
+#140000
+0&
+#145000
+b101110101100001 @
+b10101101 $
+b10101101 ?
+b10 E
+1#
+b101110101100001 Q
+b1000 U
+b0 S
+b1110100001000101 R
+b10101101 T
+b10101101 F
+b1000 /
+1&
+#150000
+0&
+#155000
+b1010110001001101 @
+b10111110 $
+b10111110 ?
+b11 E
+1#
+b1010110001001101 Q
+b1000 U
+b0 S
+b101110101100001 R
+b10111110 T
+b10111110 F
+b1001 /
+1&
+#160000
+0&
+#165000
+b11010110100111 @
+b11101111 $
+b11101111 ?
+b100 E
+1#
+b11010110100111 Q
+b1000 U
+b0 S
+b1010110001001101 R
+b11101111 T
+b11101111 F
+b1010 /
+1&
+#170000
+0&
+#175000
+b100001001001111 @
+b10010000 $
+b10010000 ?
+b11 N
+b101 E
+1#
+b100001001001111 Q
+b1000 U
+b0 S
+b11010110100111 R
+b10010000 T
+b10010000 F
+b1011 /
+1&
+#180000
+0&
+#185000
+b10111011 6
+b11001100100110 @
+b10101010 $
+b10101010 ?
+b1 L
+1#
+b11001100100110 Q
+b1000 U
+b0 S
+b100001001001111 R
+b10101010 T
+b10101010 F
+b1100 /
+1&
+#190000
+0&
+#195000
+b11001100 6
+b11011010000000 @
+b10111011 $
+b10111011 ?
+b10 L
+1#
+b11011010000000 Q
+b1000 U
+b0 S
+b11001100100110 R
+b10111011 T
+b10111011 F
+b1101 /
+1&
+#200000
+0&
+#205000
+b11011101 6
+b1100111001010101 @
+b11001100 $
+b11001100 ?
+b11 L
+1#
+b1100111001010101 Q
+b1000 U
+b0 S
+b11011010000000 R
+b11001100 T
+b11001100 F
+b1110 /
+1&
+#210000
+0&
+#215000
+bx 6
+b100 N
+b111011101010010 @
+b11011101 $
+b11011101 ?
+b100 L
+1#
+b111011101010010 Q
+b1000 U
+b0 S
+b1100111001010101 R
+b11011101 T
+b11011101 F
+b1111 /
+1&
+#220000
+0&
+#225000
+b101 N
+b1110111 $
+b1110111 ?
+1#
+b10000 /
+1&
+#230000
+0&
+#235000
+b0 N
+1"
+b1010010 $
+b1010010 ?
+1#
+b10001 /
+1&
+#240000
+0&
+#245000
+0"
+0#
+b10010 /
+1&
+#250000
+0&
+#255000
+b10011 /
+1&
+#260000
+0&
+#265000
+b10100 /
+1&
+#270000
+0&
+#275000
+b10101 /
+1&
+#280000
+0&
+#285000
+b10110 /
+1&
+#290000
+0&
+#295000
+b10111 /
+1&
+#300000
+0&
+#305000
+b11000 /
+1&
+#310000
+0&
+#315000
+b11001 /
+1&
+#320000
+0&
+#325000
+1&
+#330000
+0&
+#335000
+1&
+#340000
+0&
+#345000
+1&
+#350000
+0&
+#355000
+1&
+#360000
+0&
+#365000
+1&
