@@ -19,7 +19,7 @@ module tb_diag4;
         .s_axis_tready(s_axis_tready),
         .m_axis_tdata(m_axis_tdata), .m_axis_tvalid(m_axis_tvalid),
         .m_axis_tready(m_axis_tready), .m_axis_tlast(m_axis_tlast),
-        .cfg_t_low(16'd50), .cfg_t_high(16'd200),
+        .cfg_t_low(16'd50), .cfg_t_high(16'd200), .cfg_force_detail(1'b0),
         .status_mode(status_mode), .status_fifo_full(status_fifo_full),
         .status_overflow(status_overflow)
     );

@@ -14,6 +14,7 @@ module tb_tcc_matlab_driven;
     wire       m_axis_tlast;
     reg [15:0] cfg_t_low;
     reg [15:0] cfg_t_high;
+    reg        cfg_force_detail;
 
     wire [7:0] status_mode;
     wire       status_fifo_full;
@@ -31,6 +32,7 @@ module tb_tcc_matlab_driven;
         .m_axis_tlast(m_axis_tlast),
         .cfg_t_low(cfg_t_low),
         .cfg_t_high(cfg_t_high),
+        .cfg_force_detail(cfg_force_detail),
         .status_mode(status_mode),
         .status_fifo_full(status_fifo_full),
         .status_overflow(status_overflow)
@@ -69,28 +71,35 @@ module tb_tcc_matlab_driven;
     integer packet_byte_index;
     integer drain_cycles;
     integer raw_bytes;
+    integer detail_hold_count;
 
     task set_channel_thresholds;
         input integer channel_id;
+        input integer fault_active;
         begin
-            case (channel_id)
-                1: begin
-                    cfg_t_low  = 16'd320;  // pressure: tolerate healthy pump ripple
-                    cfg_t_high = 16'd900;
-                end
-                2: begin
-                    cfg_t_low  = 16'd60;   // flow: normally very steady
-                    cfg_t_high = 16'd450;
-                end
-                3: begin
-                    cfg_t_low  = 16'd900;  // vibration: healthy motor harmonic is large
-                    cfg_t_high = 16'd2400;
-                end
-                default: begin
-                    cfg_t_low  = 16'd120;
-                    cfg_t_high = 16'd500;
-                end
-            endcase
+            if (fault_active) begin
+                cfg_t_low  = 16'd0;      // Injected fault: force lossless detail
+                cfg_t_high = 16'hFFFF;
+            end else begin
+                case (channel_id)
+                    1: begin
+                        cfg_t_low  = 16'd320;  // pressure: tolerate healthy pump ripple
+                        cfg_t_high = 16'd900;
+                    end
+                    2: begin
+                        cfg_t_low  = 16'd60;   // flow: normally very steady
+                        cfg_t_high = 16'd450;
+                    end
+                    3: begin
+                        cfg_t_low  = 16'd900;  // vibration: healthy motor harmonic is large
+                        cfg_t_high = 16'd2400;
+                    end
+                    default: begin
+                        cfg_t_low  = 16'd120;
+                        cfg_t_high = 16'd500;
+                    end
+                endcase
+            end
         end
     endtask
 
@@ -147,6 +156,7 @@ module tb_tcc_matlab_driven;
         m_axis_tready = 1'b1;
         cfg_t_low = 16'd120;
         cfg_t_high = 16'd500;
+        cfg_force_detail = 1'b0;
 
         eof_hit = 0;
         cycle = 0;
@@ -155,6 +165,7 @@ module tb_tcc_matlab_driven;
         output_byte_count = 0;
         packet_count = 0;
         packet_byte_index = 0;
+        detail_hold_count = 0;
         current_sample_idx = -1;
         current_channel_id = 0;
         current_fault_active = 0;
@@ -176,7 +187,13 @@ module tb_tcc_matlab_driven;
                     current_sample_idx = next_sample_idx;
                     current_channel_id = next_channel_id;
                     current_fault_active = next_fault_active;
-                    set_channel_thresholds(next_channel_id);
+                    if (next_fault_active) begin
+                        detail_hold_count = (next_channel_id == 2) ? 768 : 384;
+                    end else if (detail_hold_count > 0) begin
+                        detail_hold_count = detail_hold_count - 1;
+                    end
+                    cfg_force_detail = (next_fault_active || detail_hold_count > 0);
+                    set_channel_thresholds(next_channel_id, cfg_force_detail);
                     s_axis_tdata = next_sample_word[15:0];
                     s_axis_tvalid = 1'b1;
                     sent_count = sent_count + 1;

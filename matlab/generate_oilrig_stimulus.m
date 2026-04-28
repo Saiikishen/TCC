@@ -18,8 +18,8 @@ addParameter(p, 'SampleRateHz', 1000, @(x) isnumeric(x) && isscalar(x) && x > 0)
 addParameter(p, 'SampleCount', 4096, @(x) isnumeric(x) && isscalar(x) && x > 0);
 addParameter(p, 'LeakStartSec', 2.4, @(x) isnumeric(x) && isscalar(x) && x >= 0);
 addParameter(p, 'LeakSeverity', 1.0, @(x) isnumeric(x) && isscalar(x) && x >= 0);
-addParameter(p, 'LeakHoldSec', 0.12, @(x) isnumeric(x) && isscalar(x) && x >= 0);
-addParameter(p, 'LeakRecoverySec', 0.55, @(x) isnumeric(x) && isscalar(x) && x > 0);
+addParameter(p, 'LeakHoldSec', 0.45, @(x) isnumeric(x) && isscalar(x) && x >= 0);
+addParameter(p, 'LeakRecoverySec', 0.85, @(x) isnumeric(x) && isscalar(x) && x > 0);
 addParameter(p, 'NoiseLevel', 1.0, @(x) isnumeric(x) && isscalar(x) && x >= 0);
 addParameter(p, 'PressureBasePsi', 1500, @(x) isnumeric(x) && isscalar(x));
 addParameter(p, 'FlowBaseGpm', 500, @(x) isnumeric(x) && isscalar(x));
@@ -40,6 +40,11 @@ leakRecoverySec = double(p.Results.LeakRecoverySec);
 noiseLevel = double(p.Results.NoiseLevel);
 timeOffsetSec = double(p.Results.TimeOffsetSec);
 quiet = logical(p.Results.Quiet);
+
+if strcmp(channel, 'flow')
+    leakHoldSec = max(leakHoldSec, 0.95);
+    leakRecoverySec = max(leakRecoverySec, 1.15);
+end
 
 if ~exist(outDir, 'dir')
     mkdir(outDir);

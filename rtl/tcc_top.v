@@ -21,6 +21,7 @@ module tcc_top (
     // vibration can each define "stable" in their own ADC scale.
     input  wire [15:0] cfg_t_low,
     input  wire [15:0] cfg_t_high,
+    input  wire        cfg_force_detail,
 
     // CSR status outputs (visible to LabVIEW as Indicator wires)
     // Widened to 8 bits for LabVIEW CLIP U8 compatibility
@@ -98,7 +99,7 @@ module tcc_top (
     u_edge (
         .clk(clk), .rst_n(rst_n_sync),
         .sample_in(s_axis_tdata), .valid_in(s_axis_tvalid), .ready_in(quant_ready_out),
-        .csr_en(1'b0), .csr_force_mode(2'b0),
+        .csr_en(cfg_force_detail), .csr_force_mode(2'b00),
         .csr_t_low(cfg_t_low), .csr_t_high(cfg_t_high),
         .data_out(ana_data_out), .valid_out(ana_valid_out), .ready_out(edge_ready_out),
         .mode_out(ana_mode_out), .q_out(ana_q_out)

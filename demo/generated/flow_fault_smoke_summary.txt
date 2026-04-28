@@ -1,7 +1,7 @@
 Input samples: 1024
 Raw bytes: 2048
-Output bytes: 926
+Output bytes: 556
 Packets: 16
-Raw/output byte ratio: 2.21
+Raw/output byte ratio: 3.68
 FIFO full: 0
 Overflow: 0

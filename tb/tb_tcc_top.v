@@ -31,6 +31,7 @@ module tb_tcc_top;
         .m_axis_tlast(m_axis_tlast),
         .cfg_t_low(cfg_t_low),
         .cfg_t_high(cfg_t_high),
+        .cfg_force_detail(1'b0),
         .status_mode(status_mode),
         .status_fifo_full(status_fifo_full),
         .status_overflow(status_overflow)

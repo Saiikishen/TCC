@@ -21,6 +21,7 @@ state.runIndex = 0;
 state.leakEventTimeSec = Inf;
 state.demoTimer = [];
 state.simBuilt = false;
+state.nextGlobalPacketId = 0;
 
 fig = uifigure('Name', 'Oil Rig FPGA Telemetry Demo', ...
     'Position', [80 80 1420 820], ...
@@ -228,6 +229,7 @@ refreshScenario();
             'Quiet', true);
         state.streamStartSec = 0;
         state.leakEventTimeSec = Inf;
+        state.nextGlobalPacketId = 0;
         plotScenario();
         setPendingMetrics();
         packetConsole.Value = { ...
@@ -275,6 +277,7 @@ refreshScenario();
             state.streamStartSec = 0;
             state.runIndex = 0;
             state.leakEventTimeSec = Inf;
+            state.nextGlobalPacketId = 0;
             continuousButton.Text = 'Stop Continuous';
             continuousButton.BackgroundColor = [0.70 0.18 0.16];
             runButton.Enable = 'off';
@@ -346,6 +349,8 @@ refreshScenario();
         state.trace = readtable(state.paths.traceCsv);
         state.packets = decode_tcc_packets(state.paths.packetCsv, ...
             'OutFile', state.paths.decodeTxt, 'Quiet', true);
+        state.packets = addGlobalPacketIds(state.packets, state.nextGlobalPacketId);
+        state.nextGlobalPacketId = state.nextGlobalPacketId + height(state.packets);
         updateFpgaPlots();
         updateMetrics();
         showPacketHex();
@@ -434,8 +439,19 @@ refreshScenario();
         outputBytes = sum(trace.m_axis_tvalid);
         rawBytes = max(inputCount * 2, 1);
         ratio = rawBytes / max(outputBytes, 1);
-        latestMode = trace.mode(find(trace.input_fire, 1, 'last'));
-        latestQ = trace.q_shift(find(trace.input_fire, 1, 'last'));
+        inputRows = trace.input_fire == 1;
+        faultRows = inputRows & trace.fault_active == 1;
+        if any(faultRows)
+            metricIdx = find(faultRows, 1, 'last');
+        else
+            metricIdx = find(inputRows, 1, 'last');
+        end
+        latestMode = trace.mode(metricIdx);
+        latestQ = trace.q_shift(metricIdx);
+        if any(faultRows)
+            latestMode = 0;
+            latestQ = 0;
+        end
         maxFifo = max(trace.fifo_level);
         overflow = any(trace.overflow ~= 0);
         packetCount = height(packets);
@@ -447,7 +463,11 @@ refreshScenario();
             latencyText = sprintf('LATENCY: %d cyc', max(packetCycles) - min(trace.cycle(trace.input_fire == 1)));
         end
 
-        modeLabel.Text = sprintf('MODE: %s', modeName(latestMode));
+        if any(faultRows)
+            modeLabel.Text = sprintf('MODE: fault detail');
+        else
+            modeLabel.Text = sprintf('MODE: %s', modeName(latestMode));
+        end
         qLabel.Text = sprintf('Q: %d', latestQ);
         ratioLabel.Text = sprintf('RATIO: %.2fx', ratio);
         packetLabel.Text = sprintf('PACKETS: %d', packetCount);
@@ -469,8 +489,8 @@ refreshScenario();
         for i = 1:maxPackets
             p = state.packets(i, :);
             lines(end+1) = sprintf( ...
-                'PKT %02d | APID 0x%03X | SEQ %03d | MODE %-9s | Q %d | PAYLOAD %3d | CRC %s', ...
-                p.packetId, p.apid, p.sequence, modeName(p.mode), p.qShift, ...
+                'PKT %04d | APID 0x%03X | SEQ %03d | MODE %-9s | Q %d | PAYLOAD %3d | CRC %s', ...
+                p.globalPacketId, p.apid, p.sequence, modeName(p.mode), p.qShift, ...
                 p.payloadBytes, passText(p.crcPass));
             lines(end+1) = sprintf('  %s%s', char(p.hexPreview), ...
                 ternary(p.totalBytes > 16, ' ...', ''));
@@ -561,6 +581,18 @@ label = uilabel(parent, 'Text', text, ...
     'BackgroundColor', [0.14 0.16 0.20], ...
     'HorizontalAlignment', 'center', ...
     'FontWeight', 'bold');
+end
+
+function packets = addGlobalPacketIds(packets, firstId)
+if isempty(packets)
+    return;
+end
+globalPacketId = firstId + (0:height(packets)-1).';
+if ismember('globalPacketId', packets.Properties.VariableNames)
+    packets.globalPacketId = globalPacketId;
+else
+    packets = addvars(packets, globalPacketId, 'Before', 'packetId');
+end
 end
 
 function [ok, msg] = runIcarus(repoRoot, paths, rebuild)
