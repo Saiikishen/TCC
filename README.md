@@ -337,7 +337,7 @@ Each time the Bit-Packer signals `chunk_done`, the CCSDS Framer:
 │                  CCSDS Primary Header (6 bytes)                      │
 ├────────────┬────────┬──────────────┬─────────────────────────────────┤
 │ Version    │ Type   │ Sec Hdr Flag │ APID (11 bits)                  │
-│ 000        │ 0 (TM) │ 1            │ Programmable via CSR             │
+│ 000        │ 0 (TM) │ 1            │ Programmable via CSR            │
 ├────────────┴────────┴──────────────┴─────────────────────────────────┤
 │ Seq Flags (2b) = 11 (standalone) │ Sequence Count (14 bits, auto)    │
 ├──────────────────────────────────┴───────────────────────────────────┤
@@ -347,7 +347,7 @@ Each time the Bit-Packer signals `chunk_done`, the CCSDS Framer:
 ├──────────────────────────────────────────────────────────────────────┤
 │ Timestamp (32 bits)  │ Mode (2b) │ Q (4b) │ Reserved (2b)            │
 ├──────────────────────────────────────────────────────────────────────┤
-│                  Packed Delta Payload (variable length)               │
+│                  Packed Delta Payload (variable length)              │
 ├──────────────────────────────────────────────────────────────────────┤
 │                  CRC-16/CCITT (2 bytes, polynomial 0x1021)           │
 └──────────────────────────────────────────────────────────────────────┘
@@ -583,30 +583,30 @@ void monitor_loop(void) {
 
 ```
 0x0000_0000 ┌─────────────────────────────┐
-             │  Instruction ROM (4 KB)     │  Firmware code
+            │  Instruction ROM (4 KB)     │  Firmware code
 0x0000_0FFF ├─────────────────────────────┤
 0x0000_1000 │  Data RAM (2 KB)            │  Stack + variables
 0x0000_17FF ├─────────────────────────────┤
-             │  (Reserved)                 │
+            │  (Reserved)                 │
 0x1000_0000 ├─────────────────────────────┤
-             │  Ethernet RX CSRs           │  0x1000_0000 – 0x1000_001F
+            │  Ethernet RX CSRs           │  0x1000_0000 – 0x1000_001F
 0x1000_1000 ├─────────────────────────────┤
-             │  Edge Analytics CSRs        │  0x1000_1000 – 0x1000_101F
+            │  Edge Analytics CSRs        │  0x1000_1000 – 0x1000_101F
 0x1000_2000 ├─────────────────────────────┤
-             │  Quantiser CSRs             │  0x1000_2000 – 0x1000_200F
+            │  Quantiser CSRs             │  0x1000_2000 – 0x1000_200F
 0x1000_3000 ├─────────────────────────────┤
-             │  DPTC Encoder CSRs          │  0x1000_3000 – 0x1000_301F
+            │  DPTC Encoder CSRs          │  0x1000_3000 – 0x1000_301F
 0x1000_4000 ├─────────────────────────────┤
-             │  Bit-Packer CSRs            │  0x1000_4000 – 0x1000_400F
+            │  Bit-Packer CSRs            │  0x1000_4000 – 0x1000_400F
 0x1000_4800 ├─────────────────────────────┤
-             │  CCSDS Framer CSRs          │  0x1000_4800 – 0x1000_480F
+            │  CCSDS Framer CSRs          │  0x1000_4800 – 0x1000_480F
 0x1000_5000 ├─────────────────────────────┤
-             │  ASCON Core CSRs            │  0x1000_5000 – 0x1000_501F
+            │  ASCON Core CSRs            │  0x1000_5000 – 0x1000_501F
 0x1000_6000 ├─────────────────────────────┤
-             │  FIFO CSRs                  │  0x1000_6000 – 0x1000_600F
+            │  FIFO CSRs                  │  0x1000_6000 – 0x1000_600F
 0x1000_7000 ├─────────────────────────────┤
-             │  UART TX CSRs               │  0x1000_7000 – 0x1000_700F
-             └─────────────────────────────┘
+            │  UART TX CSRs               │  0x1000_7000 – 0x1000_700F
+            └─────────────────────────────┘
 ```
 
 ### Interrupt Sources
@@ -646,7 +646,7 @@ When the TCC is embedded inside a Zynq or similar ARM+FPGA SoC, both the interna
      │                  Priority Arbiter                     │
      │                                                       │
      │  ARM has priority (HOST_OVERRIDE bit per module)      │
-     │  When HOST_OVERRIDE = 1 for a module, the RV32E's    │
+     │  When HOST_OVERRIDE = 1 for a module, the RV32E's     │
      │  writes to that module's CSRs are blocked.            │
      └───────────────────────┬───────────────────────────────┘
                              │
@@ -754,28 +754,7 @@ void tcc_irq_handler(void) {
 }
 ```
 
-### ARM vs RV32E — When to Use Which
 
-| Scenario | Use ARM | Use RV32E |
-|---|---|---|
-| **Boot-time initialisation** | ✅ ARM configures, then hands off | ✅ RV32E can self-init from ROM |
-| **Runtime compression tuning** | ⚠️ Possible, but higher latency | ✅ Sub-microsecond response |
-| **Key rotation** | ✅ ARM manages key lifecycle | ⚠️ RV32E has limited secure storage |
-| **Sensor polling (slow)** | ✅ ARM has rich peripheral set | ⚠️ RV32E only has basic SPI/I2C |
-| **FIFO overflow recovery** | ⚠️ OS latency may be too slow | ✅ Hardware-speed ISR |
-| **Telemetry logging** | ✅ ARM has filesystem/network | ❌ RV32E has no storage |
-| **Standalone (no SoC)** | ❌ No ARM available | ✅ RV32E handles everything |
-
-### NI sbRIO / LabVIEW FPGA Integration
-
-For the **NI sbRIO-9627** (Zynq-7020 based), the integration works via LabVIEW FPGA's **Socketed CLIP** mechanism:
-
-1. The `.v` RTL source files are wrapped into a Socketed CLIP (Component-Level IP) node
-2. The LabVIEW Real-Time host on the ARM Cortex-A9 reads CSRs and pushes raw sensor data via **DMA FIFOs** into the FPGA fabric
-3. The TCC pipeline processes the data entirely in the FPGA
-4. Encrypted packets are returned to the ARM via a DMA FIFO for network transmission
-
----
 
 ## 🔌 SoC IP Integration Architecture
 
@@ -797,30 +776,30 @@ The TCC is designed as a **self-contained, licensable IP core** with three stand
    │          ┌────────────────┼────────────────┐          │
    │          │           RV32E Core            │          │
    │          │    (supervisor + sensor mgmt)   │          │
-   │          │     ┌────┐ ┌────┐ ┌────┐       │          │
-   │          │     │SPI0│ │SPI1│ │I2C │       │          │
-   │          │     └──┬─┘ └──┬─┘ └──┬─┘       │          │
-   │          └────────┼──────┼──────┼─────────┘          │
+   │          │     ┌────┐ ┌────┐ ┌────┐       │           │
+   │          │     │SPI0│ │SPI1│ │I2C │       │           │
+   │          │     └──┬─┘ └──┬─┘ └──┬─┘       │           │
+   │          └────────┼──────┼──────┼─────────┘           │
    │                   │      │      │   → Sensor pins     │
    │  ═══════════════════════════════════════════          │
    │                                                       │
-   │  AXI-S In ──► ┌───────┐ ┌──────┐ ┌───────┐          │
-   │  (samples)    │ Edge  │→│Quant.│→│ DPTC  │          │
-   │               │Analyt.│ │      │ │Encoder│          │
-   │               └───────┘ └──────┘ └───┬───┘          │
-   │                                      │               │
-   │               ┌───────┐ ┌──────┐ ┌───▼───┐          │
-   │               │ CCSDS │←│ASCON │←│ Bit   │          │
-   │               │Framer │ │ AEAD │ │Packer │          │
-   │               └───┬───┘ └──────┘ └───────┘          │
+   │  AXI-S In ──► ┌───────┐ ┌──────┐ ┌───────┐            │
+   │  (samples)    │ Edge  │→│Quant.│→│ DPTC  │            │
+   │               │Analyt.│ │      │ │Encoder│            │
+   │               └───────┘ └──────┘ └───┬───┘            │
+   │                                      │                │
+   │               ┌───────┐ ┌──────┐ ┌───▼───┐            │
+   │               │ CCSDS │←│ASCON │←│ Bit   │            │
+   │               │Framer │ │ AEAD │ │Packer │            │
+   │               └───┬───┘ └──────┘ └───────┘            │
    │                   │                                   │
    │                   ▼                                   │
-   │               ┌───────┐ ┌──────┐                     │
-   │               │ FIFO  │→│Output│──► AXI-S Out        │
-   │               │       │ │ MUX  │   (to radio/DMA)    │
-   │               └───────┘ └──────┘                     │
+   │               ┌───────┐ ┌──────┐                      │
+   │               │ FIFO  │→│Output│──► AXI-S Out         │
+   │               │       │ │ MUX  │   (to radio/DMA)     │
+   │               └───────┘ └──────┘                      │
    │                                                       │
-   │  irq_out[7:0] ◄──── IRQ Controller                   │
+   │  irq_out[7:0] ◄──── IRQ Controller                    │
    └───────────────────────────────────────────────────────┘
           │            │              │
         Sensor       System         IRQ to
@@ -873,15 +852,7 @@ The TCC is designed as a **self-contained, licensable IP core** with three stand
 | Control / Glue Logic | ~300 | 0 | 0 |
 | **Full System Total** | **~3,690** | **3** | **0** |
 
-### Target FPGA Fit
 
-| Device | LUTs Available | TCC Utilisation | Headroom |
-|:---|:---|:---|:---|
-| Xilinx XC7S15 (Spartan-7) | ~9,000 | ~41% ✅ | ~5,300 LUTs free |
-| Xilinx XC7S25 (Spartan-7) | ~14,600 | ~25% ✅ | ~10,900 LUTs free |
-| Lattice iCE40 UP5K | ~5,280 | ~70% ⚠️ | Tight |
-| Lattice ECP5-25K | ~24,000 | ~15% ✅ | Comfortable |
-| Xilinx Zynq-7020 (in sbRIO) | ~53,200 | ~7% ✅ | Massive headroom |
 
 ---
 
@@ -949,33 +920,19 @@ gtkwave sim/edge_analytics.vcd
 
 | Module | Testbench | Status | Notes |
 |:---|:---|:---|:---|
-| Edge Analytics | `tb_edge_analytics.v` | ✅ Pass | Validates MAD computation and mode transitions |
-| Quantiser | `tb_quantiser.v` | ✅ Pass | Tests all Q-shift values (0–15) |
-| DPTC Encoder | `tb_dptc_encoder.v` | ✅ Pass | Tests deltas, absolute encoding, sync reset |
-| Bit-Packer | `tb_bit_packer.v` | ✅ Pass | Tests variable widths, chunk boundaries, flush |
-| CCSDS Framer | `tb_ccsds_framer.v` | ✅ Pass | Validates header fields, payload, CRC-16 |
-| ASCON-128a | `tb_ascon128a.v` | ✅ Pass | **Validated against NIST LWC KAT vectors** |
-| FIFO | `tb_fifo.v` | ✅ Pass | Tests read/write, overflow, watermarks |
+| Edge Analytics | `tb_edge_analytics.v` |  Pass | Validates MAD computation and mode transitions |
+| Quantiser | `tb_quantiser.v` |  Pass | Tests all Q-shift values (0–15) |
+| DPTC Encoder | `tb_dptc_encoder.v` | Pass | Tests deltas, absolute encoding, sync reset |
+| Bit-Packer | `tb_bit_packer.v` |  Pass | Tests variable widths, chunk boundaries, flush |
+| CCSDS Framer | `tb_ccsds_framer.v` |  Pass | Validates header fields, payload, CRC-16 |
+| ASCON-128a | `tb_ascon128a.v` |  Pass | **Validated against NIST LWC KAT vectors** |
+| FIFO | `tb_fifo.v` |  Pass | Tests read/write, overflow, watermarks |
 
 All 7 core modules pass their respective unit tests.
 
 ---
 
-## 🚀 Deployment Targets
 
-### 1. Xilinx Vivado (Baremetal / FreeRTOS)
-
-The RTL is synthesised using Vivado. A Zynq-7020's ARM Cortex-A9 connects to the TCC via AXI-Lite (CSR control) and AXI-Stream (data path). XDC constraints map `clk`, `uart_tx`, and sensor pins to physical FPGA I/O.
-
-### 2. National Instruments sbRIO (LabVIEW FPGA)
-
-The `.v` source files are wrapped into a **Socketed CLIP (Component-Level IP)** node. LabVIEW Real-Time on the ARM Cortex-A9 reads/writes CSRs and pushes raw data via DMA FIFOs into the FPGA fabric.
-
-### 3. Standalone FPGA Board
-
-For standalone operation (no SoC, no ARM), the RV32E supervisor handles everything: sensor polling (via on-chip SPI/I2C masters), pipeline configuration, and health monitoring. The encrypted output is transmitted over UART to an ESP32 Wi-Fi bridge or a LoRa radio module.
-
----
 
 ## 📝 License & Authorship
 
