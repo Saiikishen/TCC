@@ -49,33 +49,33 @@ When the TCC is deployed inside a larger SoC (e.g., Xilinx Zynq, NI sbRIO), the 
 ## 🔄 Full Pipeline Diagram
 
 ```
-                         ┌─────────────────────────────────────────────────────────────────┐
-                         │                     TCC IP CORE                                  │
-                         │                                                                  │
+                         ┌────────────────────────────────────────────────────────────────┐
+                         │                     TCC IP CORE                                │
+                         │                                                                │
    Raw 16-bit            │  ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐     │
    Sensor Data ─────────►│  │   Edge   │──►│ Quantiser│──►│   DPTC   │──►│   Bit    │     │
    (valid/ready)         │  │ Analytics│   │          │   │ Encoder  │   │  Packer  │     │
                          │  │  Engine  │   │ Q-shift  │   │  Delta   │   │  64-bit  │     │
                          │  └──────────┘   └──────────┘   └──────────┘   └────┬─────┘     │
-                         │   MAD-based       Arithmetic     Compute diff      │            │
-                         │   mode select     right-shift    & min bit-width   │            │
-                         │                                                     │            │
+                         │   MAD-based       Arithmetic     Compute diff      │           │
+                         │   mode select     right-shift    & min bit-width   │           │
+                         │                                                     │          │
                          │  ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌────▼─────┐     │
                          │  │  Output  │◄──│   FIFO   │◄──│ ASCON    │◄──│  CCSDS   │     │
-   Encrypted ◄───────────│  │  (UART/  │   │  2048-B  │   │ 128a    │   │  Framer  │     │
-   Packets               │  │  AXI-S)  │   │  BRAM    │   │ AEAD    │   │  + CRC   │     │
+   Encrypted ◄───────────│  │  (UART/  │   │  2048-B  │   │ 128a    │   │  Framer   │     │
+   Packets               │  │  AXI-S)  │   │  BRAM    │   │ AEAD    │   │  + CRC    │     │
                          │  └──────────┘   └──────────┘   └──────────┘   └──────────┘     │
-                         │                                                                  │
-                         │  ════════════════════ CSR Bus ═══════════════════════════════    │
-                         │                         ▲                                        │
-                         │                    ┌────┴────┐                                    │
-                         │                    │  RV32E  │ ◄──── 4 KB IROM + 2 KB DRAM       │
-                         │                    │  CPU    │                                    │
-                         │                    └────┬────┘                                    │
-                         │                         │                                        │
-                         │           AXI-Lite ◄────┤────► IRQ[7:0]                          │
-                         │           (from ARM)    │       (to ARM NVIC / RISC-V PLIC)      │
-                         └─────────────────────────┼────────────────────────────────────────┘
+                         │                                                                │
+                         │  ════════════════════ CSR Bus ═══════════════════════════════  │
+                         │                         ▲                                      │
+                         │                    ┌────┴────┐                                 │
+                         │                    │  RV32E  │ ◄──── 4 KB IROM + 2 KB DRAM     │
+                         │                    │  CPU    │                                 │
+                         │                    └────┬────┘                                 │
+                         │                         │                                      │
+                         │           AXI-Lite ◄────┤────► IRQ[7:0]                        │
+                         │           (from ARM)    │       (to ARM NVIC / RISC-V PLIC)    │
+                         └─────────────────────────┼──────────────────────────────────────┘
                                                    │
                                             Host ARM / SoC CPU
 ```
