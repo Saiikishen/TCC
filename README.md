@@ -62,8 +62,8 @@ When the TCC is deployed inside a larger SoC (e.g., Xilinx Zynq, NI sbRIO), the 
                          │                                                     │          │
                          │  ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌────▼─────┐     │
                          │  │  Output  │◄──│   FIFO   │◄──│ ASCON    │◄──│  CCSDS   │     │
-   Encrypted ◄───────────│  │  (UART/  │   │  2048-B  │   │ 128a    │   │  Framer   │     │
-   Packets               │  │  AXI-S)  │   │  BRAM    │   │ AEAD    │   │  + CRC    │     │
+   Encrypted ◄───────────│  │  (UART/  │   │  2048-B  │   │ 128a     │   │  Framer  │     │
+   Packets               │  │  AXI-S)  │   │  BRAM    │   │ AEAD     │   │  + CRC   │     │
                          │  └──────────┘   └──────────┘   └──────────┘   └──────────┘     │
                          │                                                                │
                          │  ════════════════════ CSR Bus ═══════════════════════════════  │
